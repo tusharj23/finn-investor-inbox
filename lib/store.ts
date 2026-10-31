@@ -81,7 +81,46 @@ async function writeStatements(db: D1Database, statements: D1PreparedStatement[]
 }
 
 export async function getCatalog(db?: D1Database): Promise<Catalog> {
-  if (!db) return baselineCatalog as Catalog;
+  if (!db) {
+    const snapshot = baselineCatalog as Catalog;
+    const companies = snapshot.companies.map(company => {
+      const companyFilings = snapshot.filings.filter(filing => filing.companySymbol === company.symbol);
+      const latestFiling = companyFilings.sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))[0];
+      const latestDocument = [...company.documents].sort((a, b) => Date.parse(b.accessedAt) - Date.parse(a.accessedAt))[0];
+      const staticMessage = "Included in the dated Netlify snapshot; this source will not refresh after deployment.";
+      const sourceStates: Company["sourceStates"] = {
+          prices: company.market ? {
+            companySymbol: company.symbol, source: "prices", status: "stale", stale: true,
+            fetchedAt: company.market.accessedAt ?? snapshot.snapshotAt, lastSuccessAt: company.market.accessedAt ?? snapshot.snapshotAt,
+            asOf: company.market.date, dataAsOf: company.market.date,
+            message: staticMessage,
+          } : {
+            companySymbol: company.symbol, source: "prices", status: "missing",
+            message: "No EOD price and volume observation is bundled for this company.",
+          },
+          announcements: latestFiling ? {
+            companySymbol: company.symbol, source: "announcements", status: "stale", stale: true,
+            fetchedAt: snapshot.snapshotAt, lastSuccessAt: snapshot.snapshotAt,
+            asOf: latestFiling.publishedAt, dataAsOf: latestFiling.publishedAt,
+            message: staticMessage,
+          } : {
+            companySymbol: company.symbol, source: "announcements", status: "missing",
+            message: "No exchange announcement is bundled for this company.",
+          },
+          documents: latestDocument ? {
+            companySymbol: company.symbol, source: "documents", status: "stale", stale: true,
+            fetchedAt: latestDocument.accessedAt, lastSuccessAt: latestDocument.accessedAt,
+            asOf: latestDocument.period, dataAsOf: latestDocument.period,
+            message: staticMessage,
+          } : {
+            companySymbol: company.symbol, source: "documents", status: "missing",
+            message: "No primary document is bundled for this company.",
+          },
+        };
+      return { ...company, sourceStates };
+    });
+    return { ...snapshot, companies };
+  }
   const [companyRows, filingRows, docRows, sourceRows, jobRows] = await Promise.all([
     rows<JsonRow & { updated_at: string }>(db, "SELECT data_json, updated_at FROM companies ORDER BY symbol"),
     rows<JsonRow>(db, "SELECT data_json FROM filings ORDER BY published_at DESC"),

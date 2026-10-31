@@ -36,13 +36,12 @@
     "next-env.d.ts",
     "app/**/*.ts",
     "app/**/*.tsx",
-    "worker-configuration.d.ts",
     "lib/research.ts",
     "lib/contracts.ts",
-    "worker/**/*.ts",
-    "scripts/vite/**/*.ts",
-    "vite.config.ts",
-    ".next/types/**/*.ts"
+    "lib/store.ts",
+    "lib/quarterly-results.ts",
+    ".next/types/**/*.ts",
+    ".next/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
