@@ -1,0 +1,9 @@
+import { sqliteTable, text, integer, primaryKey, index } from "drizzle-orm/sqlite-core";
+export const companies = sqliteTable("companies", {symbol:text("symbol").primaryKey(),dataJson:text("data_json").notNull(),updatedAt:text("updated_at").notNull()});
+export const filings = sqliteTable("filings", {id:text("id").primaryKey(),companySymbol:text("company_symbol").notNull(),publishedAt:text("published_at").notNull(),dataJson:text("data_json").notNull()}, t=>[index("filings_company_date").on(t.companySymbol,t.publishedAt)]);
+export const documents = sqliteTable("documents", {id:text("id").primaryKey(),companySymbol:text("company_symbol").notNull(),dataJson:text("data_json").notNull()}, t=>[index("documents_company").on(t.companySymbol)]);
+export const pages = sqliteTable("pages", {documentId:text("document_id").notNull(),page:integer("page").notNull(),companySymbol:text("company_symbol").notNull(),text:text("text").notNull(),printedPage:text("printed_page")},t=>[primaryKey({columns:[t.documentId,t.page]}),index("pages_company").on(t.companySymbol)]);
+export const sourceStates = sqliteTable("source_states", {companySymbol:text("company_symbol").notNull(),source:text("source").notNull(),dataJson:text("data_json").notNull()},t=>[primaryKey({columns:[t.companySymbol,t.source]})]);
+export const jobs = sqliteTable("jobs", {id:text("id").primaryKey(),status:text("status").notNull(),dataJson:text("data_json").notNull()});
+export const httpCache = sqliteTable("http_cache", {key:text("key").primaryKey(),dataJson:text("data_json").notNull()});
+export const marketHistory = sqliteTable("market_history", {companySymbol:text("company_symbol").notNull(),sessionDate:text("session_date").notNull(),dataJson:text("data_json").notNull()}, t=>[primaryKey({columns:[t.companySymbol,t.sessionDate]}),index("market_history_company_date").on(t.companySymbol,t.sessionDate)]);

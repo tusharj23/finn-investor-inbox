@@ -1,0 +1,96 @@
+{
+  "id": "mock-portfolio",
+  "note": "15 listed NSE companies selected across industries and company sizes. Size bands are selection labels, not regulatory classifications; live market capitalisation is preserved when available.",
+  "companies": [
+    {
+      "symbol": "INFY",
+      "sector": "Information technology",
+      "sizeBand": "large",
+      "reason": "Large IT exporter with rich primary disclosures"
+    },
+    {
+      "symbol": "TCS",
+      "sector": "Information technology",
+      "sizeBand": "large",
+      "reason": "Large IT services company; useful comparison of management guidance policy"
+    },
+    {
+      "symbol": "HDFCBANK",
+      "sector": "Banking",
+      "sizeBand": "large",
+      "reason": "Private-sector banking exposure"
+    },
+    {
+      "symbol": "RELIANCE",
+      "sector": "Energy, retail and telecom",
+      "sizeBand": "large",
+      "reason": "Diversified operations and material corporate disclosures"
+    },
+    {
+      "symbol": "ITC",
+      "sector": "Consumer goods and paperboards",
+      "sizeBand": "large",
+      "reason": "Consumer business and capital-allocation discussion"
+    },
+    {
+      "symbol": "SUNPHARMA",
+      "sector": "Pharmaceuticals",
+      "sizeBand": "large",
+      "reason": "Healthcare and regulatory exposure"
+    },
+    {
+      "symbol": "MARUTI",
+      "sector": "Automobiles",
+      "sizeBand": "large",
+      "reason": "Listed automotive exposure; replaces obsolete TATAMOTORS ticker, absent from current NSE listing and Yahoo 404"
+    },
+    {
+      "symbol": "LT",
+      "sector": "Engineering and construction",
+      "sizeBand": "large",
+      "reason": "Order-book and infrastructure exposure"
+    },
+    {
+      "symbol": "NTPC",
+      "sector": "Power generation",
+      "sizeBand": "large",
+      "reason": "Utility and capital expenditure exposure"
+    },
+    {
+      "symbol": "TATASTEEL",
+      "sector": "Metals",
+      "sizeBand": "large",
+      "reason": "Commodity cycle and balance-sheet exposure"
+    },
+    {
+      "symbol": "PIDILITIND",
+      "sector": "Specialty chemicals",
+      "sizeBand": "large",
+      "reason": "Consumer-linked specialty chemicals"
+    },
+    {
+      "symbol": "DIXON",
+      "sector": "Electronics manufacturing",
+      "sizeBand": "mid",
+      "reason": "Manufacturing growth and customer-concentration questions"
+    },
+    {
+      "symbol": "APLAPOLLO",
+      "sector": "Steel products",
+      "sizeBand": "mid",
+      "reason": "A smaller industrial company with earnings calls"
+    },
+    {
+      "symbol": "KARURVYSYA",
+      "sector": "Banking",
+      "sizeBand": "mid",
+      "reason": "Smaller banking business than HDFC Bank"
+    },
+    {
+      "symbol": "ROUTE",
+      "sector": "Communications software",
+      "sizeBand": "small",
+      "reason": "Smaller technology company with different demand dynamics"
+    }
+  ]
+}

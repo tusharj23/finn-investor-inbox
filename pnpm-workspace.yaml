@@ -1,0 +1,8 @@
+packages:
+  - .
+storeDir: .sites-runtime/pnpm-store
+cacheDir: .sites-runtime/pnpm-cache
+allowBuilds:
+  esbuild: true
+  sharp: true
+  workerd: true

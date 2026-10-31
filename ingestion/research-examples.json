@@ -1,0 +1,10 @@
+{
+  "note": "Research demonstrations are independent of the portfolio configuration. The resolver accepts an NSE symbol without consulting either list. CERA remains outside this demo set.",
+  "symbols": ["INFY", "TCS", "ITC", "APLAPOLLO"],
+  "reasons": {
+    "INFY":"Connects the real results filing to management guidance and annual-report context",
+    "TCS":"Contrasts a company that explicitly does not provide specific revenue guidance",
+    "ITC":"Adds consumer-business and cash-allocation research outside IT services",
+    "APLAPOLLO":"Adds industrial volume, capacity and demand commentary at a different company size"
+  }
+}

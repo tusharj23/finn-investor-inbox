@@ -1,0 +1,158 @@
+{
+  "companies": [
+    {
+      "symbol": "INFY",
+      "name": "Infosys",
+      "legalName": "Infosys Limited",
+      "sector": "Information technology",
+      "documents": [
+        {
+          "id": "infy-results",
+          "title": "Infosys board outcome and financial results",
+          "type": "exchange_filing",
+          "period": "Quarter and half year ended 30 September 2026",
+          "sourceUrl": "https://nsearchives.nseindia.com/corporate/Infosys_23102026160704_BM_Outcome_Oct232026_1.pdf",
+          "accessedAt": "2026-10-30T12:34:28.981027+00:00",
+          "pdfPages": 195,
+          "sectionStartPage": 1,
+          "localEvidencePdfUrl": "/documents/infy-results-cover-excerpt.pdf",
+          "localEvidenceLabel": "Saved original pages 1-3 only; open the source for the full 195-page filing",
+          "sha256": "65e459d2b8bc4ed1e754d15250e209f68db29d06e0b98593c7a023d29b6ef151",
+          "bytes": 26721438
+        },
+        {
+          "id": "infy-annual",
+          "title": "Infosys Integrated Annual Report 2025-26",
+          "type": "annual_report",
+          "period": "FY2025-26 \u00b7 year ended 31 March 2026",
+          "sourceUrl": "https://www.infosys.com/investors/reports-filings/annual-report/annual/documents/infosys-ar-26.pdf",
+          "accessedAt": "2026-10-30T12:34:10.200076+00:00",
+          "pdfPages": 383,
+          "localPdfUrl": "/documents/infy-annual.pdf",
+          "sectionStartPage": 33,
+          "sha256": "602f04ec2abfacbf28ca8ff6e592db51942c620af4c12287d3a717edb6cd078f",
+          "bytes": 8933457
+        },
+        {
+          "id": "infy-transcript",
+          "title": "Infosys Q2 FY27 earnings-call transcript",
+          "type": "earnings_call_transcript",
+          "period": "Q2 FY2026-27 \u00b7 quarter ended 30 September 2026",
+          "sourceUrl": "https://nsearchives.nseindia.com/corporate/Infosys_28102026173824_SE_filing_Earnings_call_transcript.pdf",
+          "accessedAt": "2026-10-30T12:34:35.854709+00:00",
+          "pdfPages": 48,
+          "localPdfUrl": "/documents/infy-transcript.pdf",
+          "sectionStartPage": 24,
+          "sectionNote": "Earnings call occupies original PDF pages 24-48; preceding pages contain the media conference.",
+          "sha256": "b8e9a931ed54ee49a23fb36a7d6a37f15ab72c2f3bbd14d1e92d706b471f30e2",
+          "bytes": 3742339
+        }
+      ],
+      "market": {
+        "close": 1185.0,
+        "volume": 13029753,
+        "date": "2026-10-30",
+        "changePct": 3.36,
+        "currency": "INR",
+        "sourceUrl": "https://query1.finance.yahoo.com/v8/finance/chart/INFY.NS?range=1mo&interval=1d",
+        "accessedAt": "2026-10-30T12:33:35.611887+00:00"
+      }
+    },
+    {
+      "symbol": "TCS",
+      "name": "Tata Consultancy Services",
+      "legalName": "Tata Consultancy Services Limited",
+      "sector": "Information technology",
+      "documents": [
+        {
+          "id": "tcs-transcript",
+          "title": "TCS Q2 FY27 earnings-call transcript",
+          "type": "earnings_call_transcript",
+          "period": "Q2 FY2026-27 \u00b7 quarter ended 30 September 2026",
+          "sourceUrl": "https://www.bseindia.com/xml-data/corpfiling/AttachHis/7dc14216-f892-46f1-bf82-5c7b387a83b9.pdf",
+          "originalRequestUrl": "https://www.bseindia.com/stockinfo/AnnPdfOpen.aspx?Pname=7dc14216-f892-46f1-bf82-5c7b387a83b9.pdf",
+          "discoveryUrl": "https://www.screener.in/company/TCS/consolidated/",
+          "accessedAt": "2026-10-30T12:42:34.935165+00:00",
+          "pdfPages": 29,
+          "localPdfUrl": "/documents/tcs-transcript.pdf",
+          "sectionStartPage": 2,
+          "sha256": "13033ccd2b71c7b60da6b53cdb7c80013366725d8bc36c3a17749503aad8c2fe",
+          "bytes": 723462
+        }
+      ],
+      "coverageNote": "This slice contains a verified earnings transcript; annual-report and EOD integration are not yet connected for TCS."
+    }
+  ],
+  "filings": [
+    {
+      "id": "infy-results",
+      "companySymbol": "INFY",
+      "title": "Quarterly results and interim dividend approved",
+      "category": "Results",
+      "priority": "review",
+      "reason": "New financial results and a cash distribution warrant a closer look at the original figures and terms.",
+      "publishedAt": "2026-10-23T16:08:26+05:30",
+      "summary": "The board approved audited results for the quarter and half year ended 30 September 2026, and declared an interim dividend. The original filing contains the detailed statements.",
+      "documentId": "infy-results",
+      "sourceUrl": "https://nsearchives.nseindia.com/corporate/Infosys_23102026160704_BM_Outcome_Oct232026_1.pdf"
+    },
+    {
+      "id": "infy-transcript",
+      "companySymbol": "INFY",
+      "title": "Management's Q2 earnings-call discussion is available",
+      "category": "Earnings call",
+      "priority": "watch",
+      "reason": "The analyst call provides management's own explanation and outlook alongside the reported quarter.",
+      "publishedAt": "2026-10-28T17:38:42+05:30",
+      "summary": "Infosys filed transcripts from its 23 October results-day calls. The analyst earnings-call section begins at original PDF page 24.",
+      "documentId": "infy-transcript",
+      "sourceUrl": "https://nsearchives.nseindia.com/corporate/Infosys_28102026173824_SE_filing_Earnings_call_transcript.pdf"
+    },
+    {
+      "id": "infy-publication-1",
+      "companySymbol": "INFY",
+      "title": "Newspaper publication notice",
+      "category": "Publication notice",
+      "priority": "routine",
+      "reason": "A publication notice is routine follow-through; the original exchange attachment remains available.",
+      "publishedAt": "2026-10-29T15:15:01+05:30",
+      "summary": "Infosys Limited has informed the Exchange about Copy of Newspaper Publication",
+      "sourceUrl": "https://nsearchives.nseindia.com/corporate/INFY_29102026151445_SE_intimation_Newspaper_ad_2.pdf",
+      "evidenceStatus": "Original link verified in the fetched NSE feed; attachment not downloaded in this slice."
+    },
+    {
+      "id": "infy-publication-2",
+      "companySymbol": "INFY",
+      "title": "Newspaper publication notice",
+      "category": "Publication notice",
+      "priority": "routine",
+      "reason": "A publication notice is routine follow-through; the original exchange attachment remains available.",
+      "publishedAt": "2026-10-24T19:43:00+05:30",
+      "summary": "Infosys Limited has informed the Exchange about Copy of Newspaper Publication",
+      "sourceUrl": "https://nsearchives.nseindia.com/corporate/Infosys_24102026194244_Financials_newspaper_ad_SE_filing.pdf",
+      "evidenceStatus": "Original link verified in the fetched NSE feed; attachment not downloaded in this slice."
+    },
+    {
+      "id": "tcs-transcript",
+      "companySymbol": "TCS",
+      "title": "TCS earnings-call transcript published",
+      "category": "Earnings call",
+      "priority": "watch",
+      "reason": "Management's discussion is now available in a primary exchange filing.",
+      "publishedAt": "2026-10-14T00:00:00+05:30",
+      "publishedDateOnly": true,
+      "summary": "TCS filed the transcript of its 8 October 2026 earnings call covering the quarter and six months ended 30 September 2026. The cover provides a filing date but no publication time.",
+      "documentId": "tcs-transcript",
+      "sourceUrl": "https://www.bseindia.com/xml-data/corpfiling/AttachHis/7dc14216-f892-46f1-bf82-5c7b387a83b9.pdf"
+    }
+  ],
+  "snapshotAt": "2026-10-30T12:42:34.935165+00:00",
+  "coverage": {
+    "mode": "verified_source_snapshot",
+    "isLive": false,
+    "connectedCompanies": 2,
+    "portfolioTarget": 15,
+    "filingsScope": "Selected filings from the source-access snapshot; not a complete portfolio digest",
+    "holdoutExcluded": "CERA"
+  }
+}
