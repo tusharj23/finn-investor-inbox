@@ -1,6 +1,15 @@
-# FINN — evidence inbox snapshot
+# FINN — evidence-backed investor inbox
 
-A mobile-first investor digest and primary-document research demo. This folder is prepared for Netlify using Next.js and bundled JSON/PDF evidence. It is a **dated snapshot**, not a live market-data service.
+A mobile-first investor digest and primary-document research prototype. The hosted Netlify app currently runs from a dated, bundled snapshot.
+
+## Links and deployment status
+
+- **Public prototype:** [https://finn-investor-inbox.netlify.app/](https://finn-investor-inbox.netlify.app/)
+- **Configured GitHub remote:** [https://github.com/tusharj23/finn-investor-inbox](https://github.com/tusharj23/finn-investor-inbox) — signed-out GitHub view returned 404 on 1 November 2026, so public repository access is not verified.
+- **AI build history:** [Open the shared conversation](https://chatgpt.com/s/cx_6ae4eecc56508191b50dea8da8fa2707) or see [AI_BUILD_HISTORY.md](AI_BUILD_HISTORY.md).
+- **Snapshot source date:** 30 October 2026.
+
+The public site and catalogue load. A browser check on 1 November 2026 found that submitting a research question returned “Please send this request from FINN.” The same-origin guard did not account for the host headers used behind Netlify. A fix is prepared in `lib/research.ts`; **the public site remains on the affected build until the fix is committed, pushed and redeployed.** The fix builds locally and its request handler returns a cited INFY answer with Netlify-style forwarded headers while continuing to reject a foreign Origin.
 
 ## Run locally
 
@@ -13,30 +22,31 @@ pnpm dev
 
 Open http://localhost:3000. For a production-style local run, use `pnpm build` and then `pnpm start`.
 
-## Publish with Netlify
+## Deploy or update on Netlify
 
-1. Push this folder as the root of a GitHub repository. Do not add `.env` files, `.dev.vars`, `.wrangler`, `node_modules`, or build output. `.env.example` is a safe template and contains no credentials.
-2. In Netlify, choose **Add new site → Import an existing project**, connect GitHub, and select the repository.
-3. Set the base directory to the repository root. Use build command `pnpm build` and publish directory `.next`; Netlify detects Next.js and applies its maintained adapter for route handlers and the App Router. Node 22 is specified in `netlify.toml`.
-4. Deploy. No API key or database is required for this snapshot. The `/api/*` routes are Next.js server routes and read the bundled data files.
-5. After deploy, open the public URL on a phone and check the inbox, INFY/TCS research, citations, and original-document links.
+The repository includes [`netlify.toml`](netlify.toml) with build command `pnpm build` and publish directory `.next`. Netlify’s Next.js adapter handles App Router pages and route handlers. Node 22 is specified in `.node-version` and `netlify.toml`.
 
-## What the snapshot includes
+To publish a change, commit and push it to the branch connected to the Netlify site. No API key, database, or bucket is required by this snapshot build. The `/api/*` routes are Next.js server routes reading the bundled data files.
 
-- A portfolio digest from the included dated announcements, with 24-hour, 7-day, and 30-day windows and routine filings retained.
-- Company research for the bundled companies **Infosys (INFY)** and **TCS** using included primary-document passages.
+## What the deployed snapshot includes
+
+- A portfolio digest from the included dated announcements, with 24-hour, 7-day, and 30-day windows and routine filings retained. The default 24-hour window may be empty because the source snapshot does not update.
+- Company research for **Infosys (INFY)** and **Tata Consultancy Services (TCS)** using included primary-document passages.
 - Evidence citations with document periods, page numbers, original links, and locally saved excerpts/PDFs where included.
 - A quarterly results comparison for Infosys based on the bundled filing extract.
-- A static ticker lookup independent of the example grouping. It can select only INFY and TCS; other tickers return an explicit “not in snapshot” message.
+- Static company lookup independent of the example grouping. It can select only INFY and TCS; other tickers return an explicit “not in snapshot” message.
+- Source access dates and stale/missing indicators for frozen observations.
 
-## Limitations
+## Limitations and remaining release steps
 
-- Snapshot source collection date: **30 October 2026** (the timestamps for each source remain visible in the app). Prices and filings do not update after deployment.
-- Refresh, ingestion, D1/R2 persistence, scheduled jobs, and configurable EOD threshold alerts are not connected in the Netlify build. Price alerts are marked unavailable because the bundle lacks the historical EOD series needed for baselines.
-- Company resolution is bounded to bundled tickers; it does not discover unfamiliar companies or fetch new documents.
-- No AI provider key is needed: research responses are extractive from the bundled evidence. Answers can only cover the available passages.
-- The PDFs and page text are included to make the prototype self-contained. Confirm you have permission to redistribute them publicly before publishing a public repository or site.
+- Snapshot source collection date: **30 October 2026**. Prices and filings do not update after deployment.
+- Refresh, ingestion, D1/R2 persistence, scheduled jobs, and configurable EOD threshold alerts are not connected. Price alerts are marked unavailable because the bundle lacks the historical EOD series needed for baselines.
+- Company resolution is limited to the two bundled tickers; it does not discover unfamiliar companies or fetch new documents.
+- Research responses are extracts from bundled evidence, not generated by an AI provider. The deployed research submit currently fails until the prepared origin-guard fix is pushed and redeployed.
+- Signed-out GitHub returned 404 for the configured repository URL. Make the repository publicly readable or provide reviewers with access.
+- No hands-on physical phone check is claimed. Repeat narrow-screen research, keyboard, source-link, and error-handling checks after deployment.
+- The PDFs and page text are bundled to make the prototype self-contained. Confirm public redistribution rights before sharing the repository or site.
 
 ## Data and secret handling
 
-This build makes no third-party API calls and has no server secrets. Do not add provider keys or private ingestion tokens to GitHub or browser storage. To add new company data, use the original ingestion workflow in the source project, review source rights, and rebuild the snapshot before deployment.
+This snapshot build makes no third-party API calls and has no server secrets. Do not add provider keys or private ingestion tokens to GitHub or browser storage. To add companies or newer source data, use the ingestion workflow, review source rights, and rebuild the snapshot before deployment.

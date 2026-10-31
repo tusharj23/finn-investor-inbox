@@ -35,3 +35,10 @@ Filings deduplicate by company and original attachment URL, with exchange sequen
 Original PDFs are parsed outside the Worker to avoid its memory/CPU limits. Runtime ticker lookup can discover documents but does not claim they are indexed; the normal CLI can acquire/index any valid NSE symbol without code edits. The browser refresh button explicitly covers prices and filings, while the collector refreshes full documents. Most portfolio holdings have price/filing coverage only; four examples plus the two tested holdouts have indexed research documents.
 
 Inputs are bounded, cross-origin mutations rejected, private imports credential-protected, and local file paths removed from API metadata. Local secrets remain outside the build output; hosted secrets must be configured independently. Source-extract research requires no model key. Hosted database/PDF seeding and hosted-source accessibility remain unverified because the registered Site is inaccessible through the Sites API.
+
+
+## Netlify deployment variant — 2026-11-01
+
+The public Netlify build runs standard Next.js App Router routes against bundled `lib/data/catalog.json` and `lib/data/pages.json`. It serves a static two-company snapshot (INFY and TCS); the Cloudflare Worker, D1/R2 ingestion, and refresh implementation documented above are not active in this deployment. The Netlify build needs no database or API key.
+
+The first live research POST exposed an origin check that compared the browser origin with the adapter’s internal request URL. A fix now checks the forwarded/request host and validates the forwarded protocol when present. Local build and forwarded-host checks pass, including rejection of a foreign Origin. The public Netlify site still requires a push/redeploy before this correction can be considered deployed.

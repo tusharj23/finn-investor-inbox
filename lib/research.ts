@@ -246,8 +246,20 @@ export function errorResponse(error: unknown) {
 
 export async function readResearchRequest(request: Request): Promise<unknown> {
   const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) {
-    throw new ResearchError(403, "origin_not_allowed", "Please send this request from FINN.");
+  if (origin) {
+    let originUrl: URL;
+    try { originUrl = new URL(origin); }
+    catch { throw new ResearchError(403, "origin_not_allowed", "Please send this request from FINN."); }
+    const requestUrl = new URL(request.url);
+    const forwardedHosts = [request.headers.get("x-forwarded-host"), request.headers.get("host")]
+      .filter((value): value is string => Boolean(value))
+      .flatMap(value => value.split(",").map(host => host.trim().toLowerCase()));
+    const allowedHosts = new Set([requestUrl.host.toLowerCase(), ...forwardedHosts]);
+    const forwardedProtocol = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim().toLowerCase();
+    const protocolMatches = !forwardedProtocol || originUrl.protocol === `${forwardedProtocol}:`;
+    if (!allowedHosts.has(originUrl.host.toLowerCase()) || !protocolMatches || !["http:", "https:"].includes(originUrl.protocol)) {
+      throw new ResearchError(403, "origin_not_allowed", "Please send this request from FINN.");
+    }
   }
   if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get("content-type") ?? "")) {
     throw new ResearchError(415, "invalid_content_type", "Send a JSON company question.");

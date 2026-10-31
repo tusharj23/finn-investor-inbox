@@ -52,3 +52,12 @@ The Sites API still returns `Sites project not found` for the previously saved p
 The collector refreshes and indexes original documents. The in-app button refreshes EOD prices and exchange filings only; its label says so. Refresh is manual and resumable through polling, not an unattended schedule. The tested 15 holdings have price/filing paths; research documents are concentrated in four examples and two cold holdouts. Screener/BSE availability and exchange return windows can change.
 
 No generative model call or provider key is used. Answers are labeled source extracts with citations, not independent analysis. Keep in mind both qualitative portfolio size labels and the Yahoo EOD feed limitations. See [INGESTION.md](INGESTION.md) to reproduce collection, import and refresh checks.
+
+
+## 2026-11-01 — Netlify snapshot verification
+
+- Public page loaded at [https://finn-investor-inbox.netlify.app/](https://finn-investor-inbox.netlify.app/). The browser showed the dated-snapshot banner, source coverage, INFY EOD card, and unavailable-alert note.
+- The catalogue and research screen loaded; the selector contained INFY and TCS. This public build does not expose live ingestion or arbitrary-ticker discovery.
+- Research submission failed with “Please send this request from FINN.”
+- A source fix was prepared and the Next.js production build passed. Local production API checks with a matching Netlify-style forwarded host returned a cited INFY answer (200); a foreign origin stayed blocked (403). **The deployed site has not received this fix yet.**
+- Signed-out GitHub access to the configured remote returned 404. Public repository accessibility remains unresolved.

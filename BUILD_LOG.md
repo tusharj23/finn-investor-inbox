@@ -174,3 +174,12 @@ The post-build live refresh also completed all 30 price and NSE-announcement tas
 **Enhancement selected:** The connected Infosys board-outcome PDF has a same-basis consolidated IFRS table on physical page 6, covering Q2 FY27, Q1 FY27 and Q2 FY26 in ₹ crore. A compact detail view now shows Revenue, Operating profit, PBT and Net profit after non-controlling interests. It preserves the source-reported QoQ/YoY percentages and omits EBITDA, which is not separately reported in that table. An endpoint verifies its indexed page, units, date headers and ordered rows before returning anything. Four-quarter guidance-versus-delivery remains excluded because four matched guidance/outcome periods are not connected.
 
 **Checks:** 35 Node tests, seven Python tests, TypeScript typecheck, production build and 22 Worker HTTP checks passed. CERA/HAVELLS research and invalid-NSE resolution checks remain in the suite. Actual public deployment has not passed: the agreed OpenAI Sites project previously returned `Sites project not found`, and this environment exposes no Sites publishing operation. No alternate host or unverified public URL is claimed. Local reproducible commands are in `README.md`.
+
+
+## 2026-11-01 — Netlify release follow-up
+
+The user deployed the snapshot at [finn-investor-inbox.netlify.app](https://finn-investor-inbox.netlify.app/). A live browser check confirmed the public home page, dated collection banner, catalogue, INFY EOD context, unavailable alert state, and two-company research selector. A submitted INFY outlook question failed with “Please send this request from FINN.”
+
+**Correction prepared:** Netlify forwards the external request host while the app may receive an internal URL. The research guard now accepts a matching forwarded/request host and checks the forwarded protocol when available. Production build passed; a local production request returned a cited INFY answer with Netlify-style headers and still rejected a foreign origin. The change is prepared in the source tree but **has not been pushed or deployed**.
+
+**Public handoff status:** signed-out GitHub returned 404 for the configured repository remote, so public reviewer access is not verified. The AI history share displayed the full conversation when opened signed in; signed-out access and a hands-on phone walkthrough remain outstanding. The email draft is in `COVERING_EMAIL_DRAFT.md` and remains unsent.
