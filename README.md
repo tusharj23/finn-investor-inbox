@@ -5,7 +5,7 @@ A mobile-first investor digest and primary-document research prototype. The host
 ## Links and deployment status
 
 - **Public prototype:** [https://finn-investor-inbox.netlify.app/](https://finn-investor-inbox.netlify.app/)
-- **Configured GitHub remote:** [https://github.com/tusharj23/finn-investor-inbox](https://github.com/tusharj23/finn-investor-inbox) — signed-out GitHub view returned 404 on 1 November 2026, so public repository access is not verified.
+- **Configured GitHub remote:** [https://github.com/tusharj23/finn-investor-inbox](https://github.com/tusharj23/finn-investor-inbox) 
 - **AI build history:** [Open the shared conversation](https://chatgpt.com/s/cx_6ae4eecc56508191b50dea8da8fa2707) or see [AI_BUILD_HISTORY.md](AI_BUILD_HISTORY.md).
 - **Snapshot source date:** 30 October 2026.
 
