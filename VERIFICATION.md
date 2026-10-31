@@ -61,3 +61,8 @@ No generative model call or provider key is used. Answers are labeled source ext
 - Research submission failed with “Please send this request from FINN.”
 - A source fix was prepared and the Next.js production build passed. Local production API checks with a matching Netlify-style forwarded host returned a cited INFY answer (200); a foreign origin stayed blocked (403). **The deployed site has not received this fix yet.**
 - Signed-out GitHub access to the configured remote returned 404. Public repository accessibility remains unresolved.
+
+
+### Post-push public checks — 1 November 2026
+
+The new Netlify build passed INFY and TCS research requests with page citations, citation-to-passage inspection, saved PDF HEAD (200, `application/pdf`), and the INFY quarterly comparison. An unsupported analyst target question returned an evidence-insufficient message; HINDALCO returned “not in this dated snapshot.” The prior origin-check failure was fixed and the fix is now live. The build remains a static two-company snapshot: refresh and historical threshold alerts are unavailable, and the 24-hour view can be empty. Signed-out GitHub still returns 404; physical phone QA is outstanding.

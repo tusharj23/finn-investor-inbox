@@ -183,3 +183,8 @@ The user deployed the snapshot at [finn-investor-inbox.netlify.app](https://finn
 **Correction prepared:** Netlify forwards the external request host while the app may receive an internal URL. The research guard now accepts a matching forwarded/request host and checks the forwarded protocol when available. Production build passed; a local production request returned a cited INFY answer with Netlify-style headers and still rejected a foreign origin. The change is prepared in the source tree but **has not been pushed or deployed**.
 
 **Public handoff status:** signed-out GitHub returned 404 for the configured repository remote, so public reviewer access is not verified. The AI history share displayed the full conversation when opened signed in; signed-out access and a hands-on phone walkthrough remain outstanding. The email draft is in `COVERING_EMAIL_DRAFT.md` and remains unsent.
+
+
+### Post-push verification — 1 November 2026
+
+The user pushed commit `8eee46c` and Netlify is now serving the origin-check correction. Live INFY and TCS research both returned cited management statements; the INFY citation opened the source passage, the local transcript asset returned HTTP 200, and the quarterly comparison loaded. Unsupported analyst-price-target and unbundled HINDALCO inputs produced explicit evidence-gap/not-in-snapshot states. The default 24-hour window was empty; the 30-day view showed the bundled historical filings. Remaining release limits: dated two-company snapshot, no refresh/price-alert history, signed-out GitHub 404, and no physical phone QA.

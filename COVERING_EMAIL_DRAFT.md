@@ -15,9 +15,9 @@ The current Netlify snapshot includes Infosys and TCS documents, an announcement
 
 The main trade-off was to keep the hosted prototype small and self-contained: it requires no paid model key or database, but refresh, configurable price alerts, and arbitrary-ticker discovery are not available in this deployed snapshot. The data is dated 30 October 2026. The quarterly comparison uses only the periods and units present in the source filing; the four-quarter guidance-versus-delivery view was excluded because the required matched evidence was not available.
 
-**Release items to complete before sending:** the live research form currently returns an origin-check error. A local fix has been built and verified with Netlify-style forwarded headers, but it still needs to be pushed and redeployed. Also, the GitHub URL returned 404 when checked signed out, so repository access for reviewers is not confirmed. Physical phone checks remain outstanding.
+**Current checks:** after the latest push, the hosted research form returned cited INFY and TCS answers, citation inspection opened the supporting passage, and the quarterly comparison loaded. The snapshot is still limited to INFY and TCS and has no live refresh or threshold alerts. The GitHub URL returned 404 when checked signed out, so repository access for reviewers is not confirmed. Physical phone checks remain outstanding.
 
-After those items are resolved, I will repeat the hosted research and citation check, confirm signed-out repository and conversation access, and attach the README, evaluation, and two-minute walkthrough.
+Before sending, I will make the repository accessible to reviewers, confirm the conversation link works signed out, and complete narrow-screen checks. I will then attach the README, evaluation, and two-minute walkthrough.
 
 Regards,
 Tushar Jain

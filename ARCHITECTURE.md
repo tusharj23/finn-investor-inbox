@@ -42,3 +42,8 @@ Inputs are bounded, cross-origin mutations rejected, private imports credential-
 The public Netlify build runs standard Next.js App Router routes against bundled `lib/data/catalog.json` and `lib/data/pages.json`. It serves a static two-company snapshot (INFY and TCS); the Cloudflare Worker, D1/R2 ingestion, and refresh implementation documented above are not active in this deployment. The Netlify build needs no database or API key.
 
 The first live research POST exposed an origin check that compared the browser origin with the adapter’s internal request URL. A fix now checks the forwarded/request host and validates the forwarded protocol when present. Local build and forwarded-host checks pass, including rejection of a foreign Origin. The public Netlify site still requires a push/redeploy before this correction can be considered deployed.
+
+
+### Deployment status update — 1 November 2026
+
+The forwarded-host origin correction described above was pushed and verified on the public Netlify app. INFY and TCS research POSTs and evidence retrieval now pass. The static snapshot constraints remain unchanged; this does not activate the Cloudflare Worker, D1/R2, refresh, or alert-history paths.

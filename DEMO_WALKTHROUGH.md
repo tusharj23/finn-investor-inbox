@@ -1,7 +1,7 @@
 # FINN — two-minute demo walkthrough
 
 **Prototype:** https://finn-investor-inbox.netlify.app/
-**Snapshot:** collected 30 October 2026. The default 24-hour digest may be empty because the collection is frozen. The public research form currently has an origin-check failure; do not present the research step as working until the prepared fix is pushed and redeployed.
+**Snapshot:** collected 30 October 2026. The main workflows were checked on the public site after the latest push. The default 24-hour digest is empty because the collection is frozen; use the 30-day window for included filings.
 
 ## 0:00–0:20 — Start with the inbox
 
@@ -17,7 +17,7 @@ On the INFY results detail, show Q2 FY27, Q1 FY27, and Q2 FY26 on a consolidated
 
 ## 1:10–1:40 — Move from announcement to research
 
-After the origin-guard fix is deployed, choose **Research this company** and ask “What is management’s outlook?” Show the extract, management-statement label, period, page number, and original document link. Explain that the answer is restricted to bundled passages and is not generated investment advice.
+Choose **Research this company** and ask “What is management’s outlook?” Show the extract, management-statement label, period, page number, and original document link. Explain that the answer is restricted to bundled passages and is not generated investment advice.
 
 ## 1:40–1:55 — Explain coverage limits
 
@@ -29,4 +29,4 @@ Point to the stale/missing source indicators and unavailable price-alert panel. 
 
 ## Do not claim
 
-Do not claim the hosted research request works until a post-deploy check succeeds. Do not present the bundled two-company sample as 15–20-company live coverage or unfamiliar-ticker discovery. The repository’s [`INGESTION.md`](INGESTION.md) documents the broader acquisition workflow and its boundaries.
+Do not present the bundled two-company sample as 15–20-company live coverage or unfamiliar-ticker discovery. The repository’s [`INGESTION.md`](INGESTION.md) documents the broader acquisition workflow and its boundaries.
