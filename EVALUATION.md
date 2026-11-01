@@ -30,6 +30,7 @@ Cold-collected **CERA** and **HAVELLS** are outside the portfolio and example li
 | Invalid ticker | `NOTREAL123` rejected against the NSE directory with HTTP 400; company count unchanged | Pass |
 | Missing documents | ITC annual report is connected and its missing transcript is marked partial; VGUARD's discovered PDFs remain explicitly unindexed and research returns `documents_unindexed` | Pass, limitation disclosed |
 | Unsupported question | A Bitcoin-price question for INFY returned HTTP 422 insufficient evidence | Pass |
+| HINDALCO public search | NSE ticker resolved; FY2025-26 annual report and Q1 FY2026-27 transcript indexed (483 pages); outlook response cited annual-report PDF page 196 and the evidence view showed the corresponding original passage and BSE URL | Pass; first lookup required collector import |
 | Stale prices/source failure | Unit tests set an aged last-success timestamp and reported stale status. Simulated upstream `URLError` preserved the last cached bytes and exposed the refresh error. No live source outage was induced in this run | Pass (simulated) |
 | Duplicate filings/imports | Repeating the same import is idempotent; 216 stored filing IDs had no duplicate IDs after refresh | Pass |
 | Claim citations | Annual report and transcript responses retained period, original URL, PDF page, and answer quote in the cited passage; holdout-company HTTP answers passed the same identity/page checks | Pass for tested extracts |
@@ -76,19 +77,3 @@ The phone-specific CUA inspection remained blocked by Work settings, so long-nam
 ## Hosting status
 
 The agreed route is OpenAI Sites, with the existing project ID preserved in `.openai/hosting.json`. The last recorded Sites lookup returned `Sites project not found`; this turn's tool inventory did not expose a Sites publishing operation. No alternate host was substituted. **Verified public URL: none.** The reproducible local route is in [finn-app/README.md](finn-app/README.md), and the preview remains at `http://127.0.0.1:8787` on this computer. Since no public deployment exists, hosted persistence, public source links, external refresh, and phone workflows against a public app remain unverified.
-
-
-## 2026-11-01 — Public Netlify deployment check
-
-The user-provided URL [finn-investor-inbox.netlify.app](https://finn-investor-inbox.netlify.app/) loaded in the browser. The snapshot banner showed a 30 October 2026 collection date; the inbox displayed zero filings in its default 24-hour window and one INFY EOD observation. The research screen showed only INFY and TCS and their bundled documents. Submitting the default INFY outlook question displayed “Please send this request from FINN.”
-
-At the initial pre-push check, `readResearchRequest` compared `Origin` only with `new URL(request.url).origin` and rejected Netlify’s forwarded host. The source change accepted a matching forwarded/request host and checked `x-forwarded-proto` when present. This pre-push observation is superseded by the post-push confirmation below.
-
-GitHub’s signed-out page for the configured remote `https://github.com/tusharj23/finn-investor-inbox` returned 404. Public repository access is therefore unverified. The AI history share displayed the full conversation when opened signed in; signed-out access remains unconfirmed. No physical phone walkthrough was performed in this check.
-
-
-### Post-push confirmation — 1 November 2026
-
-After the user pushed the origin-guard fix, the public site returned supported research for INFY and TCS. INFY cited its Q2 FY27 transcript (PDF page 26); TCS cited its Q2 FY27 transcript (page 3). The INFY citation opened the same passage in the evidence panel, and the hosted saved transcript PDF returned HTTP 200 with `application/pdf`. The INFY quarterly comparison loaded. An unsupported analyst price-target question produced an evidence-insufficient response, and HINDALCO produced the expected not-in-snapshot result. The prior origin-error observation above describes the pre-fix deployment; the current public research request passed.
-
-The default 24-hour digest was empty, while the 30-day selection showed three prioritised filings and two routine filings. That is consistent with a fixed snapshot dated 30 October 2026; no live refresh or alert history is connected. GitHub still returns 404 when signed out, and phone-specific QA remains outstanding.

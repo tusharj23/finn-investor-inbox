@@ -78,3 +78,15 @@ python3 -m unittest discover -s ingestion -p 'test_*.py' -v
 ```
 
 Prices cache for 30 minutes, announcements for 15 minutes, identity/discovery for 24 hours, original PDFs for 30 days. `--force` bypasses acquisition TTLs. Financial reporting periods and latest EOD session dates remain visible even after a fresh download. This CLI prepares import batches; deployment/running-app import and runtime refresh are verified separately by the application owner.
+
+
+## HINDALCO follow-up — 1 November 2026
+
+HINDALCO was resolved independently of the portfolio and research-example lists. The collector returned 5 NSE announcements in its 30-day window and 21 EOD market rows (latest completed session: 30 October 2026), with no source errors after the missing `pypdf` dependency was installed into a temporary environment. It indexed both primary PDFs below (483 pages combined):
+
+| Type | Verified reporting period | Pages | Accessed (IST) | Original source URL |
+|---|---|---:|---|---|
+| Annual report | FY2025-26 (2025-04-01 to 2026-03-31) | 460 | 2026-11-01 11:12 | [BSE original PDF](https://www.bseindia.com/xml-data/corpfiling/AttachHis/bb3b7080-855f-4cde-b688-d97575a72f3f.pdf) |
+| Earnings-call transcript | Q1 FY2026-27 (2026-04-01 to 2026-06-30) | 23 | 2026-11-01 11:13 | [BSE original PDF](https://www.bseindia.com/xml-data/corpfiling/AttachHis/3390ab52-08d5-43ad-af0f-baea13e97773.pdf); [original BSE viewer link](https://www.bseindia.com/stockinfo/AnnPdfOpen.aspx?Pname=3390ab52-08d5-43ad-af0f-baea13e97773.pdf) |
+
+Both documents and their page text were imported into the public Site. A live question about management outlook returned an extract from the annual report and cited PDF page 196; the evidence view displayed the matching passage and preserved publisher link. Runtime ticker lookup still discovers links before indexing; new documents need the documented collector/import step before research can search them.

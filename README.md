@@ -1,52 +1,56 @@
-# FINN — evidence-backed investor inbox
+# FINN — Investor research inbox
 
-A mobile-first investor digest and primary-document research prototype. The hosted Netlify app currently runs from a dated, bundled snapshot.
+FINN puts an NSE portfolio digest beside primary-source company research. It is mobile-first and built for evidence inspection: original filings, annual reports and earnings-call passages stay one tap away from each claim.
 
-## Links and deployment status
+## ChatGPT Sites deployment
 
-- **Public prototype:** [https://finn-investor-inbox.netlify.app/](https://finn-investor-inbox.netlify.app/)
-- **Configured GitHub remote:** [https://github.com/tusharj23/finn-investor-inbox](https://github.com/tusharj23/finn-investor-inbox) 
-- **AI build history:** [Open the shared conversation](https://chatgpt.com/s/cx_6ae4eecc56508191b50dea8da8fa2707) or see [AI_BUILD_HISTORY.md](AI_BUILD_HISTORY.md).
-- **Snapshot source date:** 30 October 2026.
+The ChatGPT Sites copy runs in a Cloudflare Worker with managed D1 and R2 bindings. Unlike the Netlify static snapshot, it can execute the company-resolution and refresh routes. New listed companies are resolved against the NSE equity directory independently of the demo and portfolio lists.
 
-The post-push public check on 1 November 2026 passed: INFY and TCS research returned document-cited answers, the citation opened its passage, the saved INFY transcript PDF returned HTTP 200, and the quarterly comparison loaded. An unsupported analyst-price-target question returned an evidence-insufficient message. The repository still returned 404 in a signed-out GitHub browser, so public reviewer access is not confirmed.
+**Public link:** https://finn-company-research.spiffybulb1.chatgpt.site/ — anyone with the link can open it.
 
-## Run locally
+**Source repository:** https://github.com/tusharj23/finn-investor-inbox. The deployed Sites version is the current working product. The older Netlify deployment/config is separate: it does not provision the live FINN_DB/FINN_DOCS bindings and has not been verified with this full feature set. A GitHub push may trigger a Netlify build if auto-publishing is connected; it will not publish a new ChatGPT Sites version.
 
-Requirements: Node.js 22.13+ and pnpm 11.25.0 (Corepack can provide pnpm).
+For the original assignment and AI-assisted work record, see [REQUIREMENTS.md](REQUIREMENTS.md) and [AI_BUILD_HISTORY.md](AI_BUILD_HISTORY.md).
+
+The portfolio seed contains 15 holdings and four curated research examples. The public catalog also accepts independently resolved NSE tickers and grows as companies are searched, so company and filing counts change over time. The seed is dated 30 October 2026; per-source freshness is displayed and in-app EOD/filing refresh remains available.
+
+**Latest live check (1 November 2026):** the 30-task portfolio refresh completed with zero reported task errors. HINDALCO, outside the portfolio and curated research examples, returned an extractive answer from its FY2025-26 annual report (PDF page 196); the citation opened the matching passage and original PDF. A separate CERA lookup verified Cera Sanitaryware Limited against the NSE directory and discovered annual-report and earnings-call links. Those two PDFs are visibly marked *Discovered · Text not indexed*, and research correctly reports that indexing is required before it can answer. A discovered link is not treated as searchable evidence.
+
+## What is available
+
+- Search an NSE ticker, verify its identity from the exchange's listing directory, and discover annual-report and transcript links.
+- Refresh one selected company's EOD price/volume and NSE announcements, or refresh the configured portfolio.
+- Keep a dated digest, routine-filings drawer, configurable EOD threshold alerts, stale/error labels and primary-source links.
+- Review a 24-hour briefing (with 7-day and 30-day windows), compact event groups, and company/category/unread filters.
+- Save filings and research answers, mark events read or unread, and add short personal notes. These preferences are stored in the browser and do not sync across devices.
+- Ask evidence-bounded questions of indexed company documents. Claims show their source period, PDF page and passage; missing or unsupported evidence is called out.
+- Inspect a citation passage and open the original document.
+- Use the INFY quarterly comparison only as the documented, source-checked example; it is not a general financial-results parser.
+
+A ticker lookup verifies the company and discovers document links. It does not guarantee a readable transcript or annual report. Newly discovered PDFs remain labelled as discovered until the collector indexes and imports their pages. The public Site currently needs that collector/import step for newly discovered tickers; searching the same unindexed document again cannot make its text searchable. A document link is not presented as evidence for a passage that has not been indexed.
+
+## Local setup
+
+Use Node.js 22.13+, pnpm 11.25.0, and Python 3.10+ (with `pypdf` only if collecting/indexing documents).
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm dev
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm start
 ```
 
-Open http://localhost:3000. For a production-style local run, use `pnpm build` and then `pnpm start`.
+The app uses `FINN_DB` and `FINN_DOCS` bindings. The Sites deployment manages those resources and applies the checked-in migrations. For a new local database, apply the migrations in order using the commands in [INGESTION.md](INGESTION.md).
 
-## Deploy or update on Netlify
+## Data and refresh
 
-The repository includes [`netlify.toml`](netlify.toml) with build command `pnpm build` and publish directory `.next`. Netlify’s Next.js adapter handles App Router pages and route handlers. Node 22 is specified in `.node-version` and `netlify.toml`.
+Source collection and import instructions are in [INGESTION.md](INGESTION.md). EOD values are completed-session data, not live quotes. Exchange checks cover a bounded window and are not a completeness guarantee. Historical examples retain their real dates.
 
-To publish a change, commit and push it to the branch connected to the Netlify site. No API key, database, or bucket is required by this snapshot build. The `/api/*` routes are Next.js server routes reading the bundled data files.
+Document acquisition and page indexing use the collector. Keep its local state, PDFs, `.dev.vars`, and runtime credentials out of source control. The optional `FINN_INGEST_TOKEN` is a server-only credential for private batch/PDF ingestion; it is not needed by browser requests. Never paste a secret into the app, README, URL, or client storage.
 
-## What the deployed snapshot includes
+## Security and limits
 
-- A portfolio digest from the included dated announcements, with 24-hour, 7-day, and 30-day windows and routine filings retained. The default 24-hour window may be empty because the source snapshot does not update.
-- Company research for **Infosys (INFY)** and **Tata Consultancy Services (TCS)** using included primary-document passages.
-- Evidence citations with document periods, page numbers, original links, and locally saved excerpts/PDFs where included.
-- A quarterly results comparison for Infosys based on the bundled filing extract.
-- Static company lookup independent of the example grouping. It can select only INFY and TCS; other tickers return an explicit “not in snapshot” message.
-- Source access dates and stale/missing indicators for frozen observations.
+FINN makes no generative-model API call and needs no model-provider API key. Research answers are extractive and evidence bounded; they are not investment recommendations. The in-app refresh updates price and announcement sources. Full annual-report/transcript acquisition and indexing remains a collector/import step, and source access can fail independently.
 
-## Limitations and remaining release steps
-
-- Snapshot source collection date: **30 October 2026**. Prices and filings do not update after deployment.
-- Refresh, ingestion, D1/R2 persistence, scheduled jobs, and configurable EOD threshold alerts are not connected. Price alerts are marked unavailable because the bundle lacks the historical EOD series needed for baselines.
-- Company resolution is limited to the two bundled tickers; it does not discover unfamiliar companies or fetch new documents.
-- Research responses are extracts from bundled evidence, not generated by an AI provider. The research form was verified after the origin-guard fix was pushed and deployed.
-- Signed-out GitHub returned 404 for the configured repository URL. Make the repository publicly readable or provide reviewers with access.
-- No hands-on physical phone check is claimed. Repeat narrow-screen research, keyboard, source-link, and error-handling checks after deployment.
-- The PDFs and page text are bundled to make the prototype self-contained. Confirm public redistribution rights before sharing the repository or site.
-
-## Data and secret handling
-
-This snapshot build makes no third-party API calls and has no server secrets. Do not add provider keys or private ingestion tokens to GitHub or browser storage. To add companies or newer source data, use the ingestion workflow, review source rights, and rebuild the snapshot before deployment.
+See [EVALUATION.md](EVALUATION.md), [VERIFICATION.md](VERIFICATION.md), [ARCHITECTURE.md](ARCHITECTURE.md), and [ingestion/REPORT.md](ingestion/REPORT.md) for checks, trade-offs and observed source results.

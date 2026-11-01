@@ -81,46 +81,7 @@ async function writeStatements(db: D1Database, statements: D1PreparedStatement[]
 }
 
 export async function getCatalog(db?: D1Database): Promise<Catalog> {
-  if (!db) {
-    const snapshot = baselineCatalog as Catalog;
-    const companies = snapshot.companies.map(company => {
-      const companyFilings = snapshot.filings.filter(filing => filing.companySymbol === company.symbol);
-      const latestFiling = companyFilings.sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))[0];
-      const latestDocument = [...company.documents].sort((a, b) => Date.parse(b.accessedAt) - Date.parse(a.accessedAt))[0];
-      const staticMessage = "Included in the dated Netlify snapshot; this source will not refresh after deployment.";
-      const sourceStates: Company["sourceStates"] = {
-          prices: company.market ? {
-            companySymbol: company.symbol, source: "prices", status: "stale", stale: true,
-            fetchedAt: company.market.accessedAt ?? snapshot.snapshotAt, lastSuccessAt: company.market.accessedAt ?? snapshot.snapshotAt,
-            asOf: company.market.date, dataAsOf: company.market.date,
-            message: staticMessage,
-          } : {
-            companySymbol: company.symbol, source: "prices", status: "missing",
-            message: "No EOD price and volume observation is bundled for this company.",
-          },
-          announcements: latestFiling ? {
-            companySymbol: company.symbol, source: "announcements", status: "stale", stale: true,
-            fetchedAt: snapshot.snapshotAt, lastSuccessAt: snapshot.snapshotAt,
-            asOf: latestFiling.publishedAt, dataAsOf: latestFiling.publishedAt,
-            message: staticMessage,
-          } : {
-            companySymbol: company.symbol, source: "announcements", status: "missing",
-            message: "No exchange announcement is bundled for this company.",
-          },
-          documents: latestDocument ? {
-            companySymbol: company.symbol, source: "documents", status: "stale", stale: true,
-            fetchedAt: latestDocument.accessedAt, lastSuccessAt: latestDocument.accessedAt,
-            asOf: latestDocument.period, dataAsOf: latestDocument.period,
-            message: staticMessage,
-          } : {
-            companySymbol: company.symbol, source: "documents", status: "missing",
-            message: "No primary document is bundled for this company.",
-          },
-        };
-      return { ...company, sourceStates };
-    });
-    return { ...snapshot, companies };
-  }
+  if (!db) return baselineCatalog as Catalog;
   const [companyRows, filingRows, docRows, sourceRows, jobRows] = await Promise.all([
     rows<JsonRow & { updated_at: string }>(db, "SELECT data_json, updated_at FROM companies ORDER BY symbol"),
     rows<JsonRow>(db, "SELECT data_json FROM filings ORDER BY published_at DESC"),
@@ -129,12 +90,25 @@ export async function getCatalog(db?: D1Database): Promise<Catalog> {
     rows<JsonRow>(db, "SELECT data_json FROM jobs ORDER BY json_extract(data_json, '$.startedAt') DESC LIMIT 1"),
   ]);
   // Empty, explicitly initialized storage can still display the real baseline.
+  // Keep that same baseline visible after the first dynamic company is added.
   // An actual D1 query error is propagated; an outage never masquerades as this fallback.
   if (!companyRows.length) return baselineCatalog as Catalog;
-  const docs = docRows.map(row => parse<PrimaryDocument>(row));
+  const docsById = new Map<string, PrimaryDocument>();
+  for (const company of (baselineCatalog as Catalog).companies) {
+    for (const doc of company.documents) docsById.set(doc.id, { ...doc, companySymbol: company.symbol } as PrimaryDocument);
+  }
+  for (const row of docRows) {
+    const doc = parse<PrimaryDocument>(row);
+    docsById.set(doc.id, { ...docsById.get(doc.id), ...doc });
+  }
+  const docs = [...docsById.values()];
   const states = sourceRows.map(row => parse<SourceState>(row));
-  const companies = companyRows.map(row => {
-    const company = parse<Company>(row);
+  const companyBySymbol = new Map<string, Company>((baselineCatalog as Catalog).companies.map(company => [company.symbol, company]));
+  for (const row of companyRows) {
+    const stored = parse<Company>(row);
+    companyBySymbol.set(stored.symbol, { ...companyBySymbol.get(stored.symbol), ...stored });
+  }
+  const companies = [...companyBySymbol.values()].map(company => {
     company.documents = docs.filter(doc => doc.companySymbol === company.symbol);
     const sourceStates: Partial<Record<SourceName, SourceState>> = {};
     for (const source of ["prices", "announcements", "documents"] as const) {
@@ -147,15 +121,21 @@ export async function getCatalog(db?: D1Database): Promise<Catalog> {
   const job = jobRows[0] ? parse<Record<string, unknown>>(jobRows[0]) : undefined;
   return {
     companies,
-    filings: filingRows.map(row => parse<Filing>(row)),
+    filings: [...new Map<string, Filing>([
+      ...((baselineCatalog as Catalog).filings.map(filing => [filing.id, filing] as const)),
+      ...filingRows.map(row => { const filing = parse<Filing>(row); return [filing.id, filing] as const; }),
+    ]).values()].sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt)),
     snapshotAt: newest(...states.map(state => state.lastSuccessAt), ...companyRows.map(row => row.updated_at)) ?? (baselineCatalog as Catalog).snapshotAt,
     generatedAt: now(),
     coverage: {
       mode: "ingested_sources",
       isLive: false,
-      portfolioCount: companies.filter(company => company.membership?.portfolio).length,
+      portfolioCount: companies.filter(company => company.membership?.portfolio ?? true).length,
       connectedCompanies: companies.length,
-      researchExamples: companies.filter(company => company.membership?.researchExample).map(company => company.symbol),
+      researchExamples: [...new Set([
+        ...((baselineCatalog as Catalog).coverage?.researchExamples ?? []),
+        ...companies.filter(company => company.membership?.researchExample).map(company => company.symbol),
+      ])],
       filingsScope: "Acquired exchange filings; coverage and failed sources are shown per company. Market observations are end-of-day, not live quotes.",
     },
     refresh: { lastRunAt: typeof job?.finishedAt === "string" ? job.finishedAt : typeof job?.startedAt === "string" ? job.startedAt : undefined, running: job?.status === "running" },
@@ -168,7 +148,12 @@ export async function getResearchData(db?: D1Database, symbol?: string): Promise
   const documentIds = new Set(catalog.companies.flatMap(company => company.documents.map(doc => doc.id)));
   if (!(await rows<{ count: number }>(db, "SELECT count(*) AS count FROM companies"))[0]?.count) return { catalog, pages: baselinePages as EvidencePage[] };
   const result = await rows<PageRow>(db, `SELECT document_id, page, company_symbol, text, printed_page FROM pages${symbol ? " WHERE company_symbol = ?" : ""} ORDER BY document_id, page`, symbol ? [symbol.toUpperCase()] : []);
-  return { catalog, pages: result.filter(row => documentIds.has(row.document_id)).map(row => ({ id: `${row.document_id}:${row.page}`, documentId: row.document_id, companySymbol: row.company_symbol, page: row.page, text: row.text, ...(row.printed_page ? { printedPage: row.printed_page } : {}) })) };
+  const pages = new Map<string, EvidencePage>((baselinePages as EvidencePage[]).filter(page => documentIds.has(page.documentId)).map(page => [page.id, page]));
+  for (const row of result) {
+    const page = { id: `${row.document_id}:${row.page}`, documentId: row.document_id, companySymbol: row.company_symbol, page: row.page, text: row.text, ...(row.printed_page ? { printedPage: row.printed_page } : {}) };
+    if (documentIds.has(page.documentId)) pages.set(page.id, page);
+  }
+  return { catalog, pages: [...pages.values()].filter(page => !symbol || page.companySymbol === symbol.toUpperCase()) };
 }
 
 export async function getEvidenceData(db?: D1Database, documentId?: string | null): Promise<{ catalog: Catalog; pages: EvidencePage[] }> {
@@ -176,7 +161,12 @@ export async function getEvidenceData(db?: D1Database, documentId?: string | nul
   if (!db || !catalog.companies.some(company => company.documents.some(doc => doc.companySymbol))) return { catalog, pages: baselinePages as EvidencePage[] };
   if (!documentId) return { catalog, pages: [] };
   const result = await rows<PageRow>(db, "SELECT document_id, page, company_symbol, text, printed_page FROM pages WHERE document_id = ? ORDER BY page", [documentId]);
-  return { catalog, pages: result.map(row => ({ id: `${row.document_id}:${row.page}`, documentId: row.document_id, companySymbol: row.company_symbol, page: row.page, text: row.text, ...(row.printed_page ? { printedPage: row.printed_page } : {}) })) };
+  const pages = new Map<string, EvidencePage>((baselinePages as EvidencePage[]).filter(page => page.documentId === documentId).map(page => [page.id, page]));
+  for (const row of result) {
+    const page = { id: `${row.document_id}:${row.page}`, documentId: row.document_id, companySymbol: row.company_symbol, page: row.page, text: row.text, ...(row.printed_page ? { printedPage: row.printed_page } : {}) };
+    pages.set(page.id, page);
+  }
+  return { catalog, pages: [...pages.values()].sort((a, b) => a.page - b.page) };
 }
 
 export async function getDocument(db: D1Database | undefined, id: string): Promise<PrimaryDocument | undefined> {
@@ -199,6 +189,24 @@ export async function applyBatch(db: D1Database, batch: IngestionBatch) {
   const sourceStates = new Map<string, SourceState>(oldStateRows.map(row => { const state = parse<SourceState>(row); return [`${state.companySymbol}|${sourceKey(state.source)}`, state] as const; }));
   const updates: D1PreparedStatement[] = [];
   const docIdMap = new Map<string, string>();
+
+  // On the first refresh, register any baseline companies touched by source
+  // data before applying market observations, filings, or freshness states.
+  const baselineCompanies = new Map((baselineCatalog as Catalog).companies.map(company => [company.symbol, company]));
+  const touchedSymbols = new Set([
+    ...(batch.market ?? []).map(item => (item.companySymbol ?? item.symbol ?? "").toUpperCase().replace(/\.NS$/, "")),
+    ...(batch.history ?? []).map(item => (item.companySymbol ?? item.symbol ?? "").toUpperCase().replace(/\.NS$/, "")),
+    ...(batch.filings ?? []).map(item => item.companySymbol.toUpperCase()),
+    ...(batch.documents ?? []).map(item => (item.companySymbol ?? "").toUpperCase()),
+    ...(batch.sourceStates ?? []).map(item => item.companySymbol.toUpperCase()),
+  ]);
+  for (const symbol of touchedSymbols) {
+    const base = baselineCompanies.get(symbol);
+    if (base && !companies.has(symbol)) {
+      companies.set(symbol, base);
+      updates.push(db.prepare("INSERT INTO companies(symbol,data_json,updated_at) VALUES(?,?,?) ON CONFLICT(symbol) DO NOTHING").bind(symbol, JSON.stringify(base), timestamp));
+    }
+  }
 
   for (const incoming of batch.companies ?? []) {
     const symbol = incoming.symbol.toUpperCase();

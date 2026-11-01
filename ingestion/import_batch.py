@@ -52,14 +52,19 @@ def main():
     parser.add_argument('--baseline',action='store_true')
     args=parser.parse_args()
     if urlsplit(args.origin).scheme!='https' and urlsplit(args.origin).hostname not in {'127.0.0.1','localhost'}:raise SystemExit('Remote import requires HTTPS.')
-    token=os.environ.get('FINN_INGEST_TOKEN')
-    if not token:
+    key_values={}
+    if args.key_file:
         for line in Path(args.key_file).read_text().splitlines():
-            if line.startswith('FINN_INGEST_TOKEN='):token=line.split('=',1)[1].strip().strip('"\'')
+            name,separator,value=line.partition('=')
+            if separator and name in {'FINN_INGEST_TOKEN','OAI_SITES_BYPASS_TOKEN'}:key_values[name]=value.strip().strip('"\'')
+    token=os.environ.get('FINN_INGEST_TOKEN') or key_values.get('FINN_INGEST_TOKEN')
     if not token:raise SystemExit('FINN_INGEST_TOKEN is missing.')
+    site_bypass=os.environ.get('OAI_SITES_BYPASS_TOKEN') or key_values.get('OAI_SITES_BYPASS_TOKEN')
     def send(path,value,method='POST'):
         data=value if isinstance(value,bytes) else json.dumps(value).encode()
-        request=Request(args.origin+path,data=data,method=method,headers={'Authorization':'Bearer '+token,'Content-Type':'application/pdf' if isinstance(value,bytes) else 'application/json'})
+        headers={'Authorization':'Bearer '+token,'Content-Type':'application/pdf' if isinstance(value,bytes) else 'application/json'}
+        if site_bypass:headers['OAI-Sites-Authorization']='Bearer '+site_bypass
+        request=Request(args.origin+path,data=data,method=method,headers=headers)
         with urlopen(request,timeout=90) as r:return json.load(r)
     if args.baseline:
         catalog=json.loads((ROOT/'lib/data/catalog.json').read_text());pages=json.loads((ROOT/'lib/data/pages.json').read_text())

@@ -1,32 +1,31 @@
 # FINN — two-minute demo walkthrough
 
-**Prototype:** https://finn-investor-inbox.netlify.app/
-**Snapshot:** collected 30 October 2026. The main workflows were checked on the public site after the latest push. The default 24-hour digest is empty because the collection is frozen; use the 30-day window for included filings.
+**Purpose:** show the investor workflow from a prioritised portfolio change to inspectable primary evidence, then demonstrate a source-backed research answer. Run on a phone-sized viewport with the app and local D1/R2 data already initialized.
 
 ## 0:00–0:20 — Start with the inbox
 
-Open FINN and point out the dated snapshot banner and default **Last 24 hours** filter. Explain that the feed is frozen; use the **Last 30 days** filter to show the included filings. Priorities give a reason to inspect a disclosure, while routine filings remain in their drawer.
+Open FINN. Point out the default **Last 24 hours** window and the counts for Review, Watch and Routine. Say that the app orders filings by likely investor relevance and gives a short reason; routine disclosures remain available in the collapsed drawer.
 
 ## 0:20–0:45 — Open a real filing
 
-Open the Infosys results filing. Show its filing date, priority rationale, and original NSE link. Inspect the source passage or PDF page to connect the digest item to the original exchange disclosure.
+Open the Infosys results filing. Show the filing date, priority rationale, exchange/source freshness, and the original NSE PDF action. Open the evidence passage or PDF page to demonstrate that the filing can be checked against its source.
 
 ## 0:45–1:10 — Show the results comparison
 
-On the INFY results detail, show Q2 FY27, Q1 FY27, and Q2 FY26 on a consolidated IFRS basis in ₹ crore. Growth rates are source-reported. EBITDA is omitted because the source table does not separately report it. Open the cited page 6.
+On the INFY results detail, show the comparison for Q2 FY27, Q1 FY27 and Q2 FY26. State the shared consolidated IFRS basis and ₹ crore units. The displayed QoQ/YoY rates are reported in the source; EBITDA is omitted because it is not reported in that table. Open the cited page 6 when asked.
 
-## 1:10–1:40 — Move from announcement to research
+## 1:10–1:35 — Move from announcement to research
 
-Choose **Research this company** and ask “What is management’s outlook?” Show the extract, management-statement label, period, page number, and original document link. Explain that the answer is restricted to bundled passages and is not generated investment advice.
+Choose **Research this company**. Ask a supported question such as “What revenue growth did management guide for?” Show the concise source extract, the management-statement label, reporting period, physical PDF page, and original document link. Explain that unsupported questions return an evidence gap rather than a guess.
 
-## 1:40–1:55 — Explain coverage limits
+## 1:35–1:50 — Resolve an unfamiliar company
 
-Show the company selector with INFY and TCS. Enter a ticker outside the bundle to demonstrate the explicit “not in snapshot” state. Explain that this static Netlify build does not discover or ingest new tickers.
+Enter `CERA` in company research and submit a supported question. Show that it is resolved outside the portfolio and demo set and that the answer cites an indexed primary document. For a symbol with discovered but not yet indexed PDFs, the UI explicitly says processing is pending.
 
-## 1:55–2:00 — Close with the trade-off
+## 1:50–2:00 — Close with alert rules and limits
 
-Point to the stale/missing source indicators and unavailable price-alert panel. State that the snapshot is dated 30 October 2026 and that refresh, D1/R2 persistence, and threshold alerts are not part of the hosted build.
+Point to EOD alert settings: 5% absolute close move or 2× the mean of the preceding 20 valid sessions, with missing history shown. Mention that prices are end-of-day and refresh is manual. Be explicit that the link currently runs locally: a public deployment and GitHub URL are still missing.
 
-## Do not claim
+## If an expected item is absent
 
-Do not present the bundled two-company sample as 15–20-company live coverage or unfamiliar-ticker discovery. The repository’s [`INGESTION.md`](INGESTION.md) documents the broader acquisition workflow and its boundaries.
+Do not substitute a fixture or claim live coverage. Show the empty/error/partial-source status, then use the evidence-backed INFY/CERA path above. Refresh from the app only refreshes prices and exchange filings; document discovery and PDF indexing use the collector described in [`finn-app/INGESTION.md`](finn-app/INGESTION.md).

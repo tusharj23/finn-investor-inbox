@@ -135,7 +135,7 @@ export function researchFromDocuments(catalog: Catalog, pages: EvidencePage[], i
   }
   const documentMap = new Map(documents.map((document) => [document.id, document]));
   if (!pages.some(page => page.companySymbol === companySymbol && documentMap.has(page.documentId))) {
-    throw new ResearchError(503, "documents_unindexed", "Primary document links are available, but readable text is not connected yet. Open an original document from the source shelf.", true);
+    throw new ResearchError(503, "documents_unindexed", "Primary documents were found, but their text has not been indexed for search yet. Open an original from the source shelf; FINN can answer after indexing is complete.", true);
   }
   // Prepared remarks have attributable management statements. Do not turn an
   // analyst's question in a later Q&A section into a company assertion.
@@ -246,20 +246,8 @@ export function errorResponse(error: unknown) {
 
 export async function readResearchRequest(request: Request): Promise<unknown> {
   const origin = request.headers.get("origin");
-  if (origin) {
-    let originUrl: URL;
-    try { originUrl = new URL(origin); }
-    catch { throw new ResearchError(403, "origin_not_allowed", "Please send this request from FINN."); }
-    const requestUrl = new URL(request.url);
-    const forwardedHosts = [request.headers.get("x-forwarded-host"), request.headers.get("host")]
-      .filter((value): value is string => Boolean(value))
-      .flatMap(value => value.split(",").map(host => host.trim().toLowerCase()));
-    const allowedHosts = new Set([requestUrl.host.toLowerCase(), ...forwardedHosts]);
-    const forwardedProtocol = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim().toLowerCase();
-    const protocolMatches = !forwardedProtocol || originUrl.protocol === `${forwardedProtocol}:`;
-    if (!allowedHosts.has(originUrl.host.toLowerCase()) || !protocolMatches || !["http:", "https:"].includes(originUrl.protocol)) {
-      throw new ResearchError(403, "origin_not_allowed", "Please send this request from FINN.");
-    }
+  if (origin && origin !== new URL(request.url).origin) {
+    throw new ResearchError(403, "origin_not_allowed", "Please send this request from FINN.");
   }
   if (!/^application\/json(?:\s*;|$)/i.test(request.headers.get("content-type") ?? "")) {
     throw new ResearchError(415, "invalid_content_type", "Send a JSON company question.");

@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { DatabaseSync } from 'node:sqlite';
-import { applyBatch, getCatalog, getResearchData, getMarketHistory, mergeSourceState, presentSourceState, canonicalSourceUrl } from '../lib/store.ts';
+import { applyBatch, getCatalog, getResearchData, getEvidenceData, getMarketHistory, mergeSourceState, presentSourceState, canonicalSourceUrl } from '../lib/store.ts';
 
 function database() {
   const sql = new DatabaseSync(':memory:');
@@ -48,13 +48,14 @@ test('repeating the same batch is idempotent for companies, filings, documents, 
   const db = database();
   await applyBatch(db, fixture());
   await applyBatch(db, fixture());
-  for (const table of ['companies', 'filings', 'documents', 'pages']) assert.equal(db.sql.prepare(`SELECT count(*) AS count FROM ${table}`).get().count, 1);
+  for (const table of ['companies', 'filings', 'documents', 'pages']) assert.equal(db.sql.prepare(`SELECT count(*) AS count FROM ${table}`).get().count, 1, table);
   const catalog = await getCatalog(db);
-  assert.equal(catalog.coverage.portfolioCount, 1);
-  assert.deepEqual(catalog.coverage.researchExamples, ['ALPHA']);
-  assert.equal(catalog.filings[0].publishedAt, '2026-08-12T00:00:00+05:30');
-  assert.equal(catalog.filings[0].historical, true);
-  assert.equal(catalog.companies[0].market.volume, 12345);
+  assert.ok(catalog.coverage.portfolioCount > 1);
+  assert.ok(catalog.coverage.researchExamples.includes('ALPHA'));
+  const alphaFiling = catalog.filings.find(filing => filing.id === 'alpha-filing');
+  assert.equal(alphaFiling.publishedAt, '2026-08-12T00:00:00+05:30');
+  assert.equal(alphaFiling.historical, true);
+  assert.equal(catalog.companies.find(company => company.symbol === 'ALPHA').market.volume, 12345);
 });
 
 test('mirrored or redirected documents retain one identity and remap citation pages', async () => {
@@ -71,7 +72,7 @@ test('mirrored or redirected documents retain one identity and remap citation pa
   assert.equal(db.sql.prepare('SELECT count(*) AS count FROM pages').get().count, 1);
   const data = await getResearchData(db, 'ALPHA');
   assert.equal(data.pages[0].documentId, 'alpha-transcript');
-  assert.equal(data.catalog.filings[0].documentId, 'alpha-transcript');
+  assert.equal(data.catalog.filings.find(filing => filing.companySymbol === 'ALPHA').documentId, 'alpha-transcript');
 });
 
 test('a failed refresh retains last good price, document, period, and successful fetch time', async () => {
@@ -79,10 +80,11 @@ test('a failed refresh retains last good price, document, period, and successful
   await applyBatch(db, fixture());
   await applyBatch(db, { finishedAt: '2026-10-30T13:00:00Z', companies: [{ symbol: 'ALPHA', name: 'Alpha Limited', sector: 'Manufacturing', documents: [] }], sourceStates: [{ companySymbol: 'ALPHA', source: 'prices', status: 'error', lastAttemptAt: '2026-10-30T13:00:00Z', error: 'Provider returned 429' }] });
   const catalog = await getCatalog(db);
-  assert.equal(catalog.companies[0].market.close, 100);
-  assert.equal(catalog.companies[0].documents[0].period, 'Q1 FY2026-27');
-  assert.equal(catalog.companies[0].membership.portfolio, true);
-  const state = catalog.companies[0].sourceStates.prices;
+  const alpha = catalog.companies.find(company => company.symbol === 'ALPHA');
+  assert.equal(alpha.market.close, 100);
+  assert.equal(alpha.documents[0].period, 'Q1 FY2026-27');
+  assert.equal(alpha.membership.portfolio, true);
+  const state = alpha.sourceStates.prices;
   assert.equal(state.status, 'error');
   assert.equal(state.lastSuccessAt, sourceAt);
   assert.equal(state.asOf, '2026-10-29');
@@ -94,10 +96,35 @@ test('resolution creates a company independent of portfolio and research members
   await applyBatch(db, fixture());
   await applyBatch(db, { companies: [{ symbol: 'UNSEEN', name: 'Unseen Limited', sector: 'Consumer', documents: [] }] });
   const catalog = await getCatalog(db);
-  assert.equal(catalog.companies.length, 2);
-  assert.equal(catalog.coverage.portfolioCount, 1);
-  assert.deepEqual(catalog.coverage.researchExamples, ['ALPHA']);
+  assert.ok(catalog.companies.length > 2);
+  assert.ok(catalog.coverage.portfolioCount > 1);
+  assert.ok(catalog.coverage.researchExamples.includes('ALPHA'));
   assert.deepEqual(catalog.companies.find(c => c.symbol === 'UNSEEN').membership, { portfolio: false, researchExample: false });
+});
+
+test('a newly resolved company does not hide baseline companies, filings, or evidence', async () => {
+  const db = database();
+  await applyBatch(db, { companies: [{ symbol: 'UNSEEN', name: 'Unseen Limited', sector: 'Consumer', documents: [] }] });
+  const catalog = await getCatalog(db);
+  assert.ok(catalog.companies.some(company => company.symbol === 'UNSEEN'));
+  assert.ok(catalog.companies.some(company => company.symbol === 'INFY'));
+  assert.ok(catalog.filings.some(filing => filing.companySymbol === 'INFY'));
+  const infy = catalog.companies.find(company => company.symbol === 'INFY');
+  const evidence = await getEvidenceData(db, infy.documents[0].id);
+  assert.ok(evidence.pages.length > 0);
+  assert.equal(evidence.pages[0].documentId, infy.documents[0].id);
+});
+
+test('first source refresh persists baseline company rows before applying new prices', async () => {
+  const db = database();
+  await applyBatch(db, {
+    market: [{ companySymbol: 'INFY', close: 1234, volume: 567890, date: '2026-10-31', sourceUrl: 'https://market.example/INFY', accessedAt: '2026-10-31T12:30:00Z' }],
+    sourceStates: [{ companySymbol: 'INFY', source: 'prices', status: 'success', lastAttemptAt: '2026-10-31T12:30:00Z', lastSuccessAt: '2026-10-31T12:30:00Z', dataAsOf: '2026-10-31' }],
+  });
+  const catalog = await getCatalog(db);
+  assert.equal(db.sql.prepare('SELECT count(*) AS count FROM companies WHERE symbol = ?').get('INFY').count, 1);
+  assert.equal(catalog.companies.find(company => company.symbol === 'INFY').market.close, 1234);
+  assert.ok(catalog.companies.some(company => company.symbol === 'TCS'));
 });
 
 test('freshness uses acquisition time, not weekends, session age, or an old fiscal reporting period', () => {
@@ -124,7 +151,7 @@ test('changed PDF bytes at the same URL retain the old version and its citations
   const db=database();await applyBatch(db,fixture());
   await applyBatch(db,{documents:[{...document,id:'new-version',sha256:'b'.repeat(64),pdfPages:2}],pages:[{documentId:'new-version',page:1,companySymbol:'ALPHA',text:'A revised document.'}]});
   const data=await getResearchData(db,'ALPHA');
-  assert.equal(data.catalog.companies[0].documents.length,2);
+  assert.equal(data.catalog.companies.find(company => company.symbol === 'ALPHA').documents.length,2);
   assert.equal(data.pages.length,2);
   assert.equal(data.pages.find(p=>p.documentId==='alpha-transcript').page,2);
 });
@@ -133,13 +160,13 @@ test('filings without attachments retain distinct exchange sequence identities',
   const db=database();const batch=fixture();const f=batch.filings[0];
   batch.filings=[{...f,id:'one',sourceUrl:'https://www.nseindia.com/api/corporate-announcements',exchangeSequenceId:'1'},{...f,id:'two',sourceUrl:'https://www.nseindia.com/api/corporate-announcements',exchangeSequenceId:'2'}];
   await applyBatch(db,batch);await applyBatch(db,batch);
-  assert.equal((await getCatalog(db)).filings.length,2);
+  assert.equal((await getCatalog(db)).filings.filter(filing => ['one','two'].includes(filing.id)).length,2);
 });
 
 test('discovery cannot downgrade indexed evidence and partial source failures remain visible', async () => {
   const db=database();await applyBatch(db,fixture());
   await applyBatch(db,{documents:[{...document,id:'discovered',pdfPages:0,period:'Unverified',sha256:undefined}],sourceStates:[{companySymbol:'ALPHA',source:'documents',status:'partial',error:'Transcript unavailable',lastAttemptAt:sourceAt,lastSuccessAt:sourceAt}]});
-  const company=(await getCatalog(db)).companies[0];
+  const company=(await getCatalog(db)).companies.find(item => item.symbol === 'ALPHA');
   assert.equal(company.documents.length,1);assert.equal(company.documents[0].pdfPages,5);
   assert.equal(company.sourceStates.documents.status,'partial');assert.match(company.sourceStates.documents.message,/Transcript unavailable/);
 });
@@ -148,7 +175,7 @@ test('importing an older cached batch cannot roll back a newer successful refres
   const db=database();await applyBatch(db,fixture());
   await applyBatch(db,{market:[{companySymbol:'ALPHA',close:102,volume:14000,date:'2026-10-29',accessedAt:'2026-10-30T14:00:00Z'}],sourceStates:[{companySymbol:'ALPHA',source:'prices',status:'success',lastAttemptAt:'2026-10-30T14:00:00Z',lastSuccessAt:'2026-10-30T14:00:00Z',dataAsOf:'2026-10-29'}]});
   const earlier=fixture();earlier.companies[0].market=earlier.market[0];await applyBatch(db,earlier);
-  const company=(await getCatalog(db)).companies[0];
+  const company=(await getCatalog(db)).companies.find(item => item.symbol === 'ALPHA');
   assert.equal(company.market.close,102);assert.equal(company.sourceStates.prices.lastSuccessAt,'2026-10-30T14:00:00Z');
 });
 
